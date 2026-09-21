@@ -1,19 +1,11 @@
 import Link from "next/link";
 
 const statCards = [
-  { label: "Miles", value: "184", trend: "+22 this month" },
-  { label: "Streak", value: "7 days", trend: "Best: 12" },
-  { label: "Completion", value: "86%", trend: "12/14 challenges" },
-  { label: "Tier", value: "Pacer", trend: "Next: Sprinter" },
+  { label: "Miles", value: "0", trend: "No activity yet" },
+  { label: "Streak", value: "0 days", trend: "No activity yet" },
+  { label: "Completion", value: "0%", trend: "No challenges completed" },
+  { label: "Tier", value: "Starter", trend: "Begin your first challenge" },
 ];
-
-const dailyChallenges = [
-  { title: "5K Easy Run", type: "Lari", reward: "18 Miles", status: "Ready" },
-  { title: "30 Push-ups", type: "Gym", reward: "10 Miles", status: "Pending" },
-  { title: "Core Recovery", type: "Recovery", reward: "8 Miles", status: "Locked" },
-];
-
-const badges = ["First Sprint", "7-Day Streak", "Pool Rookie", "Crew Voice"];
 
 export default function DashboardPage() {
   return (
@@ -51,11 +43,11 @@ export default function DashboardPage() {
 
             <div className="flex items-center gap-5">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-zinc-300 to-zinc-700 text-xl font-black text-black">
-                RK
+                --
               </div>
               <div>
-                <p className="text-2xl font-black">Raka Kurnia</p>
-                <p className="text-sm text-zinc-400">@raka.runner • Pacer Tier</p>
+                <p className="text-2xl font-black">No profile yet</p>
+                <p className="text-sm text-zinc-400">Complete onboarding to create your Runner Card.</p>
               </div>
             </div>
 
@@ -63,19 +55,19 @@ export default function DashboardPage() {
               <div>
                 <div className="mb-2 flex justify-between text-sm">
                   <span className="text-zinc-400">Progress to Sprinter</span>
-                  <span className="text-[#e7f27a]">72%</span>
+                  <span className="text-[#e7f27a]">0%</span>
                 </div>
                 <div className="h-2.5 rounded-full bg-zinc-800">
-                  <div className="h-2.5 w-[72%] rounded-full bg-[#e7f27a]" />
+                  <div className="h-2.5 w-0 rounded-full bg-[#e7f27a]" />
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 {[
-                  ["STR", "78"],
-                  ["AGI", "82"],
-                  ["VIT", "74"],
-                  ["INT", "63"],
+                  ["STR", "0"],
+                  ["AGI", "0"],
+                  ["VIT", "0"],
+                  ["INT", "0"],
                 ].map(([key, value]) => (
                   <div key={key} className="rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
                     <div className="flex items-center justify-between text-xs text-zinc-400">
@@ -94,17 +86,13 @@ export default function DashboardPage() {
           <aside className="rounded-[28px] border border-white/10 bg-white/5 p-6">
             <h2 className="text-xl font-bold">Badges</h2>
             <div className="mt-5 flex flex-wrap gap-2">
-              {badges.map((badge) => (
-                <span key={badge} className="rounded-full border border-white/10 bg-zinc-900 px-3 py-2 text-xs font-semibold text-zinc-200">
-                  {badge}
-                </span>
-              ))}
+              <p className="text-sm text-zinc-400">Badges will appear after completing challenges.</p>
             </div>
 
             <div className="mt-8 rounded-3xl bg-gradient-to-br from-[#e7f27a] to-[#cfe35a] p-4 text-black">
               <p className="text-xs font-bold uppercase tracking-[0.25em]">Next milestone</p>
-              <p className="mt-3 text-2xl font-black">Reach 200 Miles</p>
-              <p className="mt-2 text-sm">Unlock Sprinter tier and new crew badge.</p>
+              <p className="mt-3 text-2xl font-black">Complete your first challenge</p>
+              <p className="mt-2 text-sm">Your next milestone will appear here.</p>
             </div>
           </aside>
         </div>
@@ -115,22 +103,8 @@ export default function DashboardPage() {
             <Link href="/challenges" className="text-sm text-[#e7f27a]">Open all</Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {dailyChallenges.map((challenge) => (
-              <div key={challenge.title} className="rounded-3xl border border-white/10 bg-zinc-950/80 p-4">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300">
-                    {challenge.type}
-                  </span>
-                  <span className="text-xs text-[#e7f27a]">{challenge.status}</span>
-                </div>
-                <h3 className="text-lg font-bold">{challenge.title}</h3>
-                <p className="mt-3 text-sm text-zinc-400">Reward: {challenge.reward}</p>
-                <button className="mt-5 w-full rounded-2xl bg-white px-4 py-2 font-semibold text-black">
-                  Complete
-                </button>
-              </div>
-            ))}
+          <div className="rounded-3xl border border-dashed border-white/10 bg-zinc-950/80 p-6 text-sm text-zinc-400">
+            No challenges completed yet. Browse available challenges to get started.
           </div>
         </section>
       </div>

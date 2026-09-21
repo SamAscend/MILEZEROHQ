@@ -1,10 +1,4 @@
-const leaderboard = [
-  { name: "Aldo", miles: 456, tier: "Elite" },
-  { name: "Raka", miles: 390, tier: "Pacer" },
-  { name: "Nadia", miles: 371, tier: "Sprinter" },
-  { name: "Bimo", miles: 330, tier: "Endurance" },
-  { name: "Citra", miles: 315, tier: "Pacer" },
-];
+const leaderboard: { name: string; miles: number; tier: string }[] = [];
 
 export default function LeaderboardPage() {
   return (
@@ -18,13 +12,13 @@ export default function LeaderboardPage() {
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
             <p className="text-sm text-zinc-400">Weekly</p>
-            <p className="mt-2 text-4xl font-black text-[#e7f27a]">#1 Aldo</p>
-            <p className="mt-2 text-sm text-zinc-300">112 Miles this week</p>
+            <p className="mt-2 text-4xl font-black text-[#e7f27a]">No ranking</p>
+            <p className="mt-2 text-sm text-zinc-300">Complete challenges to appear here.</p>
           </div>
           <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
             <p className="text-sm text-zinc-400">Monthly</p>
-            <p className="mt-2 text-4xl font-black text-[#e7f27a]">#2 Raka</p>
-            <p className="mt-2 text-sm text-zinc-300">390 total Miles</p>
+            <p className="mt-2 text-4xl font-black text-[#e7f27a]">No ranking</p>
+            <p className="mt-2 text-sm text-zinc-300">No member data yet.</p>
           </div>
         </div>
 
@@ -49,6 +43,7 @@ export default function LeaderboardPage() {
               ))}
             </tbody>
           </table>
+          {leaderboard.length === 0 && <p className="p-6 text-sm text-zinc-400">Belum ada member di leaderboard.</p>}
         </div>
       </div>
     </main>

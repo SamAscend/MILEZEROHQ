@@ -1,6 +1,36 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleGoogleLogin = async () => {
+    if (!supabase) {
+      setErrorMessage("Supabase belum dikonfigurasi. Silakan isi .env.local terlebih dahulu.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error(error.message);
+    }
+  };
+
+  const handleDemoLogin = () => {
+    setErrorMessage("Login member membutuhkan konfigurasi Supabase dan akun terdaftar.");
+  };
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-10 text-white">
       <div className="mx-auto max-w-5xl">
@@ -42,13 +72,17 @@ export default function LoginPage() {
           <div className="p-8 md:p-12">
             <div className="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 p-1 text-sm">
               <button className="rounded-full bg-white px-4 py-2 font-semibold text-black">Google</button>
-              <button className="px-4 py-2 text-zinc-300">Username</button>
+              <button type="button" className="px-4 py-2 text-zinc-300">Username</button>
             </div>
 
             <form className="space-y-5">
               <div>
                 <label className="mb-2 block text-sm text-zinc-300">Google account</label>
-                <button type="button" className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white px-4 py-3 font-semibold text-black transition hover:bg-zinc-200">
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white px-4 py-3 font-semibold text-black transition hover:bg-zinc-200"
+                >
                   <span className="text-lg">G</span>
                   Continue with Google
                 </button>
@@ -59,7 +93,6 @@ export default function LoginPage() {
               <div>
                 <label className="mb-2 block text-sm text-zinc-300">Username</label>
                 <input
-                  defaultValue="raka.runner"
                   className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none ring-0 placeholder:text-zinc-500"
                 />
               </div>
@@ -68,14 +101,15 @@ export default function LoginPage() {
                 <label className="mb-2 block text-sm text-zinc-300">Password</label>
                 <input
                   type="password"
-                  defaultValue="password123"
                   className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none ring-0 placeholder:text-zinc-500"
                 />
               </div>
 
-              <Link href="/dashboard" className="block rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black transition hover:bg-[#d9e35b]">
+              <button type="button" onClick={handleDemoLogin} className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black transition hover:bg-[#d9e35b]">
                 Sign in
-              </Link>
+              </button>
+
+              {errorMessage && <p className="text-sm text-red-300">{errorMessage}</p>}
 
               <p className="text-center text-xs text-zinc-400">
                 New here? <a href="#" className="text-white underline">Create account</a>

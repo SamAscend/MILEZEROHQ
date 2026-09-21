@@ -57,37 +57,37 @@ export default function Home() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Runner Card</p>
-                <h2 className="mt-2 text-2xl font-black">Raka Kurnia</h2>
+                <h2 className="mt-2 text-2xl font-black">Your Runner Card</h2>
               </div>
               <span className="rounded-full border border-[#e7f27a] bg-[#e7f27a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#e7f27a]">
-                Pacer
+                Starter
               </span>
             </div>
 
             <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
               <div className="mb-3 flex items-center justify-between text-sm text-zinc-400">
                 <span>Mile Marker</span>
-                <span className="text-[#e7f27a]">Mile 12</span>
+                <span className="text-[#e7f27a]">Mile 0</span>
               </div>
               <div className="h-2.5 rounded-full bg-zinc-800">
-                <div className="h-2.5 w-[72%] rounded-full bg-[#e7f27a]" />
+                <div className="h-2.5 w-0 rounded-full bg-[#e7f27a]" />
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-2xl bg-zinc-950 p-3">
                   <p className="text-zinc-400">STR</p>
-                  <p className="mt-1 text-xl font-black">78</p>
+                  <p className="mt-1 text-xl font-black">0</p>
                 </div>
                 <div className="rounded-2xl bg-zinc-950 p-3">
                   <p className="text-zinc-400">AGI</p>
-                  <p className="mt-1 text-xl font-black">82</p>
+                  <p className="mt-1 text-xl font-black">0</p>
                 </div>
                 <div className="rounded-2xl bg-zinc-950 p-3">
                   <p className="text-zinc-400">VIT</p>
-                  <p className="mt-1 text-xl font-black">74</p>
+                  <p className="mt-1 text-xl font-black">0</p>
                 </div>
                 <div className="rounded-2xl bg-zinc-950 p-3">
                   <p className="text-zinc-400">INT</p>
-                  <p className="mt-1 text-xl font-black">63</p>
+                  <p className="mt-1 text-xl font-black">0</p>
                 </div>
               </div>
             </div>

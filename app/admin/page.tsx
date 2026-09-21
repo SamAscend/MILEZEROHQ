@@ -1,22 +1,42 @@
-const summary = [
-  { label: "Active members", value: "86" },
-  { label: "Challenge completions", value: "214" },
-  { label: "Pending proof", value: "7" },
-  { label: "Avg. streak", value: "5.2d" },
-];
+"use client";
 
-const memberRows = [
-  { name: "Raka Kurnia", mile: "184", tier: "Pacer", status: "Active" },
-  { name: "Nadia Sari", mile: "210", tier: "Sprinter", status: "Active" },
-  { name: "Edo Arif", mile: "152", tier: "Starter", status: "Inactive" },
-];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { AdminMember, getAdminStatsFromSupabase, listMembersFromSupabase } from "@/lib/supabase-data";
 
-const proofQueue = [
-  { member: "Bimo", challenge: "5K easy run", status: "Pending" },
-  { member: "Citra", challenge: "Push-up 30 reps", status: "Pending" },
+const emptySummary = [
+  { label: "Active members", value: "0" },
+  { label: "Challenge completions", value: "0" },
+  { label: "Pending proof", value: "0" },
+  { label: "Avg. streak", value: "0d" },
 ];
 
 export default function AdminDashboardPage() {
+  const [summary, setSummary] = useState(emptySummary);
+  const [memberRows, setMemberRows] = useState<AdminMember[]>([]);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const [stats, members] = await Promise.all([getAdminStatsFromSupabase(), listMembersFromSupabase()]);
+        if (stats) {
+          setSummary([
+            { label: "Active members", value: String(stats.activeMembers) },
+            { label: "Challenge completions", value: String(stats.completions) },
+            { label: "Pending proof", value: String(stats.pendingProof) },
+            { label: "Avg. streak", value: stats.averageStreak },
+          ]);
+        }
+        setMemberRows(members ?? []);
+      } catch {
+        setSummary(emptySummary);
+        setMemberRows([]);
+      }
+    };
+
+    void loadDashboard();
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
       <div className="mx-auto max-w-6xl">
@@ -25,7 +45,7 @@ export default function AdminDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">Admin</p>
             <h1 className="mt-2 text-3xl font-black">Crew operations</h1>
           </div>
-          <button className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Create challenge</button>
+          <Link href="/admin/challenges/new" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Create challenge</Link>
         </header>
 
         <div className="mb-8 grid gap-4 md:grid-cols-4">
@@ -52,42 +72,25 @@ export default function AdminDashboardPage() {
                 </thead>
                 <tbody>
                   {memberRows.map((member) => (
-                    <tr key={member.name} className="border-t border-white/10">
+                    <tr key={member.id} className="border-t border-white/10">
                       <td className="px-4 py-3">{member.name}</td>
-                      <td className="px-4 py-3">{member.mile}</td>
-                      <td className="px-4 py-3">{member.tier}</td>
+                      <td className="px-4 py-3">{member.miles}</td>
+                      <td className="px-4 py-3">Member</td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-full px-2 py-1 text-xs ${member.status === "Active" ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
-                          {member.status}
-                        </span>
+                        <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-300">Active</span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {memberRows.length === 0 && <p className="p-5 text-sm text-zinc-400">Belum ada member yang mendaftar.</p>}
             </div>
           </section>
 
           <section className="rounded-[28px] border border-white/10 bg-white/5 p-6">
             <h2 className="mb-4 text-xl font-bold">Proof review queue</h2>
-            <div className="space-y-3">
-              {proofQueue.map((item) => (
-                <div key={item.member} className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{item.member}</p>
-                      <p className="text-sm text-zinc-400">{item.challenge}</p>
-                    </div>
-                    <span className="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-semibold text-amber-300">
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <button className="flex-1 rounded-xl bg-[#e7f27a] px-3 py-2 text-sm font-bold text-black">Approve</button>
-                    <button className="rounded-xl border border-white/10 px-3 py-2 text-sm">Reject</button>
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-dashed border-white/10 bg-zinc-950/80 p-5 text-sm text-zinc-400">
+              Buka halaman Reviews untuk melihat bukti yang benar-benar dikirim member.
             </div>
           </section>
         </div>
