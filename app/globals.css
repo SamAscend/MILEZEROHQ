@@ -57,3 +57,8 @@ button,
 input {
   font: inherit;
 }
+
+.password-input::-ms-reveal,
+.password-input::-ms-clear {
+  display: none;
+}

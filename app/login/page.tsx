@@ -124,7 +124,7 @@ export default function LoginPage() {
                     pattern="[A-Za-z0-9]{6,12}"
                     title="Password harus terdiri dari 6 sampai 12 huruf atau angka."
                     required
-                    className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 pr-16 text-white outline-none placeholder:text-zinc-500"
+                    className="password-input w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 pr-16 text-white outline-none placeholder:text-zinc-500"
                   />
                   <button
                     type="button"
