@@ -9,8 +9,62 @@ export type AdminMember = {
   role: "member" | "admin";
 };
 
+export type CurrentProfile = {
+  id: string;
+  display_name: string;
+  username: string;
+  bio: string;
+  avatar_url: string | null;
+  miles: number;
+  role: "member" | "admin";
+  email: string;
+};
+
 export function isSupabaseConfigured() {
   return Boolean(supabase);
+}
+
+export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  if (!supabase) return null;
+
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!authData.user) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, username, bio, avatar_url, miles, role")
+    .eq("id", authData.user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return {
+    ...data,
+    display_name: data.display_name ?? "",
+    username: data.username ?? "",
+    bio: data.bio ?? "",
+    email: authData.user.email ?? "",
+  } as CurrentProfile;
+}
+
+export async function updateCurrentProfile(updates: Pick<CurrentProfile, "display_name" | "username" | "bio" | "avatar_url">) {
+  if (!supabase) throw new Error("Supabase belum dikonfigurasi.");
+
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!authData.user) throw new Error("Silakan login terlebih dahulu.");
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(updates)
+    .eq("id", authData.user.id)
+    .select("id, display_name, username, bio, avatar_url, miles, role")
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export async function listMembersFromSupabase(): Promise<AdminMember[] | null> {
