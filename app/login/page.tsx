@@ -7,28 +7,37 @@ import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleGoogleLogin = async () => {
+  const handleEmailAuth = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
     if (!supabase) {
       setErrorMessage("Supabase belum dikonfigurasi. Silakan isi .env.local terlebih dahulu.");
       return;
     }
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const result = isSignUp
+      ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } })
+      : await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      console.error(error.message);
+    if (result.error) {
+      setErrorMessage(result.error.message);
+      return;
     }
-  };
 
-  const handleDemoLogin = () => {
-    setErrorMessage("Login member membutuhkan konfigurasi Supabase dan akun terdaftar.");
+    if (isSignUp) {
+      setSuccessMessage("Akun berhasil dibuat. Cek email Anda untuk konfirmasi akun.");
+      return;
+    }
+
+    router.push("/dashboard");
   };
 
   return (
@@ -50,7 +59,7 @@ export default function LoginPage() {
             </p>
             <h1 className="text-4xl font-black tracking-tight">Run with your crew.</h1>
             <p className="mt-4 max-w-md text-sm leading-7 text-zinc-300">
-              Sign in with Google to claim your challenge, track your Miles, and grow your Runner Card.
+              Sign in with your email to claim challenges, track your Miles, and grow your Runner Card.
             </p>
 
             <div className="mt-8 space-y-3 text-sm text-zinc-200">
@@ -71,29 +80,24 @@ export default function LoginPage() {
 
           <div className="p-8 md:p-12">
             <div className="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 p-1 text-sm">
-              <button className="rounded-full bg-white px-4 py-2 font-semibold text-black">Google</button>
-              <button type="button" className="px-4 py-2 text-zinc-300">Username</button>
+              <button type="button" onClick={() => setIsSignUp(false)} className={`rounded-full px-4 py-2 font-semibold ${!isSignUp ? "bg-white text-black" : "text-zinc-300"}`}>
+                Sign in
+              </button>
+              <button type="button" onClick={() => setIsSignUp(true)} className={`rounded-full px-4 py-2 font-semibold ${isSignUp ? "bg-white text-black" : "text-zinc-300"}`}>
+                Create account
+              </button>
             </div>
 
-            <form className="space-y-5">
+            <form onSubmit={handleEmailAuth} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm text-zinc-300">Google account</label>
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white px-4 py-3 font-semibold text-black transition hover:bg-zinc-200"
-                >
-                  <span className="text-lg">G</span>
-                  Continue with Google
-                </button>
-              </div>
-
-              <div className="text-center text-xs uppercase tracking-[0.25em] text-zinc-500">or</div>
-
-              <div>
-                <label className="mb-2 block text-sm text-zinc-300">Username</label>
+                <label className="mb-2 block text-sm text-zinc-300">Email</label>
                 <input
-                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none ring-0 placeholder:text-zinc-500"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none placeholder:text-zinc-500"
                 />
               </div>
 
@@ -101,18 +105,27 @@ export default function LoginPage() {
                 <label className="mb-2 block text-sm text-zinc-300">Password</label>
                 <input
                   type="password"
-                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none ring-0 placeholder:text-zinc-500"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Minimum 6 characters"
+                  minLength={6}
+                  required
+                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none placeholder:text-zinc-500"
                 />
               </div>
 
-              <button type="button" onClick={handleDemoLogin} className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black transition hover:bg-[#d9e35b]">
-                Sign in
+              <button type="submit" className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black transition hover:bg-[#d9e35b]">
+                {isSignUp ? "Create account" : "Sign in"}
               </button>
 
               {errorMessage && <p className="text-sm text-red-300">{errorMessage}</p>}
+              {successMessage && <p className="text-sm text-emerald-300">{successMessage}</p>}
 
               <p className="text-center text-xs text-zinc-400">
-                New here? <a href="#" className="text-white underline">Create account</a>
+                {isSignUp ? "Already have an account? " : "New here? "}
+                <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-white underline">
+                  {isSignUp ? "Sign in" : "Create account"}
+                </button>
               </p>
             </form>
           </div>

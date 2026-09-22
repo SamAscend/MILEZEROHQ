@@ -49,7 +49,7 @@ export default function OnboardingPage() {
           <div className="rounded-[24px] border border-white/10 bg-zinc-950/60 p-4 text-sm leading-7 text-zinc-300">
             <p className="font-semibold text-white">Privacy notice</p>
             <p className="mt-2">
-              Your profile data, including name, username, Google account, and challenge history, may be visible to the admin team for moderation, monitoring, and safety purposes.
+              Your profile data, including name, username, email account, and challenge history, may be visible to the admin team for moderation, monitoring, and safety purposes.
             </p>
           </div>
 
