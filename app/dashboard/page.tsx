@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CurrentProfile, getCurrentProfile } from "@/lib/supabase-data";
 
 const statCards = [
   { label: "Miles", value: "0", trend: "No activity yet" },
@@ -8,6 +12,17 @@ const statCards = [
 ];
 
 export default function DashboardPage() {
+  const [profile, setProfile] = useState<CurrentProfile | null>(null);
+
+  useEffect(() => {
+    void getCurrentProfile().then(setProfile).catch(() => setProfile(null));
+  }, []);
+
+  const displayName = profile?.display_name || "No profile yet";
+  const username = profile?.username ? `@${profile.username}` : "Complete onboarding to create your Runner Card.";
+  const initials = (profile?.display_name || profile?.email || "U").slice(0, 2).toUpperCase();
+  const miles = profile?.miles ?? 0;
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
       <div className="mx-auto max-w-6xl">
@@ -37,17 +52,17 @@ export default function DashboardPage() {
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-xl font-bold">Runner Card</h2>
               <span className="rounded-full border border-[#e7f27a] bg-[#e7f27a]/10 px-3 py-1 text-xs font-semibold text-[#e7f27a]">
-                Mile 12
+                Mile {miles}
               </span>
             </div>
 
             <div className="flex items-center gap-5">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-zinc-300 to-zinc-700 text-xl font-black text-black">
-                --
+                {initials}
               </div>
               <div>
-                <p className="text-2xl font-black">No profile yet</p>
-                <p className="text-sm text-zinc-400">Complete onboarding to create your Runner Card.</p>
+                <p className="text-2xl font-black">{displayName}</p>
+                <p className="text-sm text-zinc-400">{username}</p>
               </div>
             </div>
 
