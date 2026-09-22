@@ -80,9 +80,10 @@ export default function ProfilePage() {
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">Profile</p>
             <h1 className="mt-2 text-3xl font-black">Runner identity</h1>
           </div>
-          <Link href="/notifications" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">
-            Notifications
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/settings" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">Settings</Link>
+            <Link href="/notifications" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">Notifications</Link>
+          </div>
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">

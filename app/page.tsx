@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { BottomNav } from "@/components/bottom-nav";
+import { supabase } from "@/lib/supabase";
 
 const features = [
   { title: "Daily Challenges", description: "Short missions that keep crew momentum high." },
@@ -15,6 +20,20 @@ const milestones = [
 ];
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+    void supabase.auth.getSession().then(({ data }) => setIsLoggedIn(Boolean(data.session)));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setIsLoggedIn(Boolean(session)));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase?.auth.signOut();
+    setIsLoggedIn(false);
+  };
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] text-white">
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-8">
@@ -26,9 +45,11 @@ export default function Home() {
             <Link href="/leaderboard">Leaderboard</Link>
             <Link href="/admin/login">Admin</Link>
           </nav>
-          <Link href="/login" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">
-            Login
-          </Link>
+          {isLoggedIn ? (
+            <button type="button" onClick={handleLogout} className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Log out</button>
+          ) : (
+            <Link href="/login" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Login</Link>
+          )}
         </header>
 
         <div className="grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr]">
@@ -129,6 +150,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+      <BottomNav />
     </main>
   );
 }

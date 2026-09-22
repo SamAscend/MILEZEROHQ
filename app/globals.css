@@ -15,6 +15,40 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+html[data-theme="light"] body {
+  background: #f4f5ef;
+  color: #181a16;
+}
+
+html[data-theme="light"] .bg-\[\#0b0b0d\] {
+  background-color: #f4f5ef !important;
+}
+
+html[data-theme="light"] .bg-\[\#111214\] {
+  background-color: #e7e9df !important;
+}
+
+html[data-theme="light"] .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+html[data-theme="light"] .bg-zinc-950,
+html[data-theme="light"] .bg-zinc-950\/80,
+html[data-theme="light"] .bg-zinc-950\/70,
+html[data-theme="light"] .bg-zinc-950\/60 {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"] .text-white {
+  color: #181a16 !important;
+}
+
+html[data-theme="light"] .text-zinc-200,
+html[data-theme="light"] .text-zinc-300,
+html[data-theme="light"] .text-zinc-400 {
+  color: #4b5148 !important;
+}
+
 * {
   box-sizing: border-box;
 }

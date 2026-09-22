@@ -33,7 +33,11 @@ export default function LoginPage() {
     }
 
     if (isSignUp) {
-      setSuccessMessage("Akun berhasil dibuat. Cek email Anda untuk konfirmasi akun.");
+      if (result.data.session) {
+        router.push("/onboarding");
+        return;
+      }
+      setSuccessMessage("Akun berhasil dibuat. Cek email Anda untuk konfirmasi akun sebelum login.");
       return;
     }
 
@@ -44,9 +48,10 @@ export default function LoginPage() {
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-10 text-white">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/" className="text-lg font-black tracking-[0.28em] text-white">
-            MILEZERO
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link href="/" className="text-lg font-black tracking-[0.28em] text-white">MILEZERO</Link>
+            <Link href="/" className="text-sm text-zinc-400 transition hover:text-white">Back</Link>
+          </div>
           <Link href="/admin/login" className="text-sm text-zinc-300 transition hover:text-white">
             Admin Portal
           </Link>
