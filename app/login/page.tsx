@@ -29,7 +29,11 @@ export default function LoginPage() {
       : await supabase.auth.signInWithPassword({ email, password });
 
     if (result.error) {
-      setErrorMessage(result.error.message);
+      setErrorMessage(
+        result.error.message.toLowerCase().includes("invalid login credentials")
+          ? "Email atau password salah, atau akun belum dibuat/diaktifkan. Pilih Create account untuk mendaftar."
+          : result.error.message,
+      );
       return;
     }
 
@@ -126,9 +130,19 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm text-zinc-400 hover:text-white"
+                    title={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-400 hover:text-white"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8">
+                        <path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.2A10.8 10.8 0 0112 4c5.2 0 8.7 4 9.8 6a11.8 11.8 0 01-3.1 3.8M6.2 6.2C4.4 7.4 3.2 9 2.2 10c1.1 2 4.6 6 9.8 6 1 0 2-.2 2.8-.5" />
+                      </svg>
+                    ) : (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8">
+                        <path d="M2.2 10c1.1-2 4.6-6 9.8-6s8.7 4 9.8 6c-1.1 2-4.6 6-9.8 6s-8.7-4-9.8-6z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                      </svg>
+                    )}
                   </button>
                 </div>
                 <p className="mt-2 text-xs text-zinc-500">6-12 karakter, hanya huruf dan angka.</p>
