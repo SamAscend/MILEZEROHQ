@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -108,15 +109,29 @@ export default function LoginPage() {
 
               <div>
                 <label className="mb-2 block text-sm text-zinc-300">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Minimum 6 characters"
-                  minLength={6}
-                  required
-                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none placeholder:text-zinc-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="6-12 letters and numbers"
+                    minLength={6}
+                    maxLength={12}
+                    pattern="[A-Za-z0-9]{6,12}"
+                    title="Password harus terdiri dari 6 sampai 12 huruf atau angka."
+                    required
+                    className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 pr-16 text-white outline-none placeholder:text-zinc-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-sm text-zinc-400 hover:text-white"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-zinc-500">6-12 karakter, hanya huruf dan angka.</p>
               </div>
 
               <button type="submit" className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black transition hover:bg-[#d9e35b]">
