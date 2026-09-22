@@ -39,8 +39,13 @@ export default function OnboardingPage() {
 
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: displayName.trim(), username: username.trim().replace(/^@/, ""), bio: bio.trim(), avatar_url: avatar })
-      .eq("id", authData.user.id);
+      .upsert({
+        id: authData.user.id,
+        display_name: displayName.trim(),
+        username: username.trim().replace(/^@/, ""),
+        bio: bio.trim(),
+        avatar_url: avatar,
+      }, { onConflict: "id" });
 
     setSaving(false);
     if (error) {

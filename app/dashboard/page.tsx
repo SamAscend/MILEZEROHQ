@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CurrentProfile, getCurrentProfile } from "@/lib/supabase-data";
+import { supabase } from "@/lib/supabase";
 
 const statCards = [
   { label: "Miles", value: "0", trend: "No activity yet" },
@@ -15,7 +16,22 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<CurrentProfile | null>(null);
 
   useEffect(() => {
-    void getCurrentProfile().then(setProfile).catch(() => setProfile(null));
+    if (!supabase) return;
+
+    const loadProfile = async () => {
+      try {
+        setProfile(await getCurrentProfile());
+      } catch {
+        setProfile(null);
+      }
+    };
+
+    void loadProfile();
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      void loadProfile();
+    });
+
+    return () => listener.subscription.unsubscribe();
   }, []);
 
   const displayName = profile?.display_name || "No profile yet";
