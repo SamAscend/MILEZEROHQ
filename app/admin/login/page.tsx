@@ -1,45 +1,56 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { recordAdminActivity } from "@/lib/admin-activity";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setErrorMessage("");
+    setIsSubmitting(true);
 
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!response.ok) {
-      const result = await response.json().catch(() => null);
-      setErrorMessage(result?.error ?? "Login admin gagal.");
-      return;
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        setErrorMessage(result?.error ?? `Login admin gagal (HTTP ${response.status}).`);
+        return;
+      }
+
+      recordAdminActivity({
+        kind: "login",
+        actor: username,
+        action: "Admin signed in",
+        device: navigator.userAgent,
+      });
+      recordAdminActivity({
+        kind: "audit",
+        actor: username,
+        action: "Admin login successful",
+        device: navigator.userAgent,
+      });
+      const nextPath = searchParams.get("next");
+      router.push(nextPath?.startsWith("/admin") ? nextPath : "/admin");
+    } catch {
+      setErrorMessage("Tidak dapat terhubung ke server login. Pastikan deployment Vercel sudah selesai dan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    recordAdminActivity({
-      kind: "login",
-      actor: username,
-      action: "Admin signed in",
-      device: navigator.userAgent,
-    });
-    recordAdminActivity({
-      kind: "audit",
-      actor: username,
-      action: "Admin login successful",
-      device: navigator.userAgent,
-    });
-    router.push("/admin");
   };
 
   return (
@@ -93,8 +104,8 @@ export default function AdminLoginPage() {
             <p className="mt-2 text-xs text-zinc-500">Password admin bersifat case-sensitive.</p>
           </div>
 
-          <button type="submit" className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black">
-            Sign in
+          <button type="submit" disabled={isSubmitting} className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black disabled:cursor-wait disabled:opacity-60">
+            {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
 
           {errorMessage && <p className="text-sm text-red-300">{errorMessage}</p>}
