@@ -24,52 +24,7 @@ export type ProofSubmission = {
 const STORAGE_KEY = "milezero-challenges";
 const PROOFS_STORAGE_KEY = "milezero-proof-submissions";
 
-export const defaultChallenges: Challenge[] = [
-  {
-    id: "challenge-1",
-    title: "5K Easy Run",
-    description: "Complete a relaxed 5 kilometer run with a steady pace.",
-    frequency: "Daily",
-    category: "Lari",
-    miles_reward: 18,
-    requires_proof: true,
-    is_active: true,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "challenge-2",
-    title: "30 Push-ups",
-    description: "Finish 30 push-ups in one set or across a short workout block.",
-    frequency: "Daily",
-    category: "Gym",
-    miles_reward: 10,
-    requires_proof: false,
-    is_active: true,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "challenge-3",
-    title: "Total 25 km",
-    description: "Reach a total of 25 kilometers in the current week.",
-    frequency: "Weekly",
-    category: "Lari",
-    miles_reward: 30,
-    requires_proof: true,
-    is_active: true,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "challenge-4",
-    title: "Crew Sprint Race",
-    description: "Take part in the crew sprint race event and share proof.",
-    frequency: "Special",
-    category: "Event",
-    miles_reward: 40,
-    requires_proof: true,
-    is_active: false,
-    created_at: new Date().toISOString(),
-  },
-];
+export const defaultChallenges: Challenge[] = [];
 
 export function getStoredChallenges(): Challenge[] {
   if (typeof window === "undefined") return defaultChallenges;
@@ -82,7 +37,9 @@ export function getStoredChallenges(): Challenge[] {
     }
 
     const parsed = JSON.parse(raw) as Challenge[];
-    return parsed.length ? parsed : defaultChallenges;
+    const userCreatedChallenges = parsed.filter((challenge) => !["challenge-1", "challenge-2", "challenge-3", "challenge-4"].includes(challenge.id));
+    if (userCreatedChallenges.length !== parsed.length) saveChallenges(userCreatedChallenges);
+    return userCreatedChallenges;
   } catch {
     return defaultChallenges;
   }

@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Challenge, createProofSubmission, getChallengeById, getProofSubmissions } from "@/lib/challenge-store";
 import { getChallengeFromSupabase, submitProofToSupabase } from "@/lib/supabase-data";
 
-export default function ChallengeDetailPage({ params }: { params: { id: string } }) {
+export default function ChallengeDetailPage() {
+  const params = useParams<{ id: string }>();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -15,18 +17,18 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
     const loadChallenge = async () => {
       try {
         const remoteChallenge = await getChallengeFromSupabase(params.id);
-        setChallenge(remoteChallenge ?? getChallengeById(params.id));
+        const nextChallenge = remoteChallenge ?? getChallengeById(params.id);
+        setChallenge(nextChallenge);
+        setSubmitted(Boolean(nextChallenge && getProofSubmissions().some((proof) => proof.challenge_id === nextChallenge.id)));
       } catch {
-        setChallenge(getChallengeById(params.id));
+        const nextChallenge = getChallengeById(params.id);
+        setChallenge(nextChallenge);
+        setSubmitted(Boolean(nextChallenge && getProofSubmissions().some((proof) => proof.challenge_id === nextChallenge.id)));
       }
     };
 
     void loadChallenge();
   }, [params.id]);
-
-  useEffect(() => {
-    if (challenge) setSubmitted(getProofSubmissions().some((proof) => proof.challenge_id === challenge.id));
-  }, [challenge]);
 
   const handleProofSubmit = async () => {
     if (!challenge || !proofFile) {

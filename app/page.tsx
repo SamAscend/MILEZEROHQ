@@ -43,7 +43,7 @@ export default function Home() {
             <Link href="/dashboard">Dashboard</Link>
             <Link href="/challenges">Challenges</Link>
             <Link href="/leaderboard">Leaderboard</Link>
-            <Link href="/admin/login">Admin</Link>
+            {!isLoggedIn && <Link href="/admin/login">Admin</Link>}
           </nav>
           {isLoggedIn ? (
             <button type="button" onClick={handleLogout} className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Log out</button>
@@ -64,14 +64,6 @@ export default function Home() {
               A runner-focused gamification platform for MileZero crews to complete challenges, track progress, unlock tiers, and build a stronger training culture.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/login" className="rounded-full bg-[#e7f27a] px-6 py-3 font-bold text-black transition hover:bg-[#dfe96d]">
-                Join member portal
-              </Link>
-              <Link href="/admin/login" className="rounded-full border border-white/10 bg-white/5 px-6 py-3 font-bold text-white transition hover:bg-white/10">
-                Admin portal
-              </Link>
-            </div>
           </div>
 
           <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 shadow-2xl shadow-black/40">

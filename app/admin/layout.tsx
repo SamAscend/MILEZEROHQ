@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Overview" },
@@ -15,6 +15,12 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleAdminLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.push("/login");
+  };
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] text-white">
@@ -40,9 +46,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ))}
           </nav>
           <div className="hidden h-8 w-px bg-white/20 md:block" aria-hidden="true" />
-          <Link href="/login" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#dfe96d]">
-            Member view
-          </Link>
+          <button type="button" onClick={handleAdminLogout} className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#dfe96d]">
+            Log out
+          </button>
         </div>
       </header>
       <div>{children}</div>

@@ -52,14 +52,11 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-center">
           <div className="flex items-center gap-5">
             <Link href="/" className="text-lg font-black tracking-[0.28em] text-white">MILEZERO</Link>
             <Link href="/" className="text-sm text-zinc-400 transition hover:text-white">Back</Link>
           </div>
-          <Link href="/admin/login" className="text-sm text-zinc-300 transition hover:text-white">
-            Admin Portal
-          </Link>
         </div>
 
         <div className="grid overflow-hidden rounded-[32px] border border-white/10 bg-white/5 shadow-2xl shadow-black/30 md:grid-cols-2">

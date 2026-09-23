@@ -4,25 +4,51 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Challenge, getStoredChallenges } from "@/lib/challenge-store";
 import { listChallengesFromSupabase } from "@/lib/supabase-data";
+import { supabase } from "@/lib/supabase";
 
 const tabs = ["Daily", "Weekly", "Monthly", "Special"] as const;
 
 export default function ChallengesPage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Daily");
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [authLoading, setAuthLoading] = useState(() => Boolean(supabase));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
+    const authClient = supabase;
+
+    const loadSession = async () => {
+      const { data } = await authClient.auth.getSession();
+      setIsAuthenticated(Boolean(data.session));
+      setAuthLoading(false);
+    };
+
+    void loadSession();
+    const { data: listener } = authClient.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(Boolean(session));
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const loadChallenges = async () => {
       try {
         const remoteChallenges = await listChallengesFromSupabase();
-        setChallenges(remoteChallenges ?? getStoredChallenges());
+        setChallenges(remoteChallenges && remoteChallenges.length > 0 ? remoteChallenges : getStoredChallenges());
       } catch {
         setChallenges(getStoredChallenges());
       }
     };
 
     void loadChallenges();
-  }, []);
+  }, [isAuthenticated]);
 
   const visibleChallenges = useMemo(
     () => challenges.filter((challenge) => challenge.frequency === activeTab && challenge.is_active),
@@ -39,7 +65,17 @@ export default function ChallengesPage() {
           </div>
         </header>
 
-        <div className="mb-8 flex flex-wrap gap-3">
+        {authLoading && <div className="rounded-[28px] border border-dashed border-white/10 bg-white/5 p-8 text-center text-zinc-300">Checking your session...</div>}
+
+        {!authLoading && !isAuthenticated && (
+          <div className="rounded-[28px] border border-dashed border-white/10 bg-white/5 p-8 text-center">
+            <h2 className="text-xl font-bold">Login to view challenges</h2>
+            <p className="mt-2 text-sm text-zinc-400">Available missions will appear after you sign in.</p>
+            <Link href="/login" className="mt-5 inline-block rounded-full bg-[#e7f27a] px-5 py-3 font-bold text-black">Login</Link>
+          </div>
+        )}
+
+        {isAuthenticated && <div className="mb-8 flex flex-wrap gap-3">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -52,9 +88,9 @@ export default function ChallengesPage() {
               {tab}
             </button>
           ))}
-        </div>
+        </div>}
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {isAuthenticated && <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {visibleChallenges.map((challenge) => (
             <div key={challenge.id} className="rounded-[28px] border border-white/10 bg-white/5 p-5">
               <div className="mb-4 flex items-center justify-between">
@@ -79,9 +115,9 @@ export default function ChallengesPage() {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
 
-        {visibleChallenges.length === 0 && (
+        {isAuthenticated && visibleChallenges.length === 0 && (
           <div className="mt-8 rounded-[28px] border border-dashed border-white/10 bg-white/5 p-8 text-center text-zinc-300">
             No active challenges for this category yet.
           </div>

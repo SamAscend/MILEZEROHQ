@@ -48,7 +48,9 @@ export default function DashboardPage() {
             <h1 className="mt-2 text-3xl font-black">Crew Dashboard</h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">Notifications</button>
+            <Link href="/notifications" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10">
+              Notifications
+            </Link>
             <Link href="/" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">Home</Link>
           </div>
         </header>

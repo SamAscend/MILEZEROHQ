@@ -1,8 +1,12 @@
-import Link from "next/link";
+"use client";
 
-const loginEvents: { id: string; user: string; device: string; time: string }[] = [];
+import Link from "next/link";
+import { useState } from "react";
+import { AdminActivity, getAdminActivity } from "@/lib/admin-activity";
 
 export default function AdminLoginsPage() {
+  const [loginEvents] = useState<AdminActivity[]>(() => getAdminActivity().filter((activity) => activity.kind === "login"));
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
       <div className="mx-auto max-w-5xl">
@@ -19,10 +23,10 @@ export default function AdminLoginsPage() {
             <div key={event.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-bold">{event.user}</p>
+                  <p className="font-bold">{event.actor}</p>
                   <p className="text-sm text-zinc-400">{event.device}</p>
                 </div>
-                <span className="text-sm text-zinc-300">{event.time}</span>
+                <span className="text-sm text-zinc-300">{new Date(event.createdAt).toLocaleString()}</span>
               </div>
             </div>
           ))}

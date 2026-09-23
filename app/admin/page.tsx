@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AdminMember, getAdminStatsFromSupabase, listMembersFromSupabase } from "@/lib/supabase-data";
+import { AdminMember, getAdminStatsFromSupabase } from "@/lib/supabase-data";
 
 const emptySummary = [
   { label: "Active members", value: "0" },
@@ -18,16 +18,27 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [stats, members] = await Promise.all([getAdminStatsFromSupabase(), listMembersFromSupabase()]);
-        if (stats) {
+        const [stats, membersResponse] = await Promise.allSettled([getAdminStatsFromSupabase(), fetch("/api/admin/members")]);
+        if (stats.status === "fulfilled" && stats.value) {
           setSummary([
-            { label: "Active members", value: String(stats.activeMembers) },
-            { label: "Challenge completions", value: String(stats.completions) },
-            { label: "Pending proof", value: String(stats.pendingProof) },
-            { label: "Avg. streak", value: stats.averageStreak },
+            { label: "Active members", value: String(stats.value.activeMembers) },
+            { label: "Challenge completions", value: String(stats.value.completions) },
+            { label: "Pending proof", value: String(stats.value.pendingProof) },
+            { label: "Avg. streak", value: stats.value.averageStreak },
           ]);
         }
-        setMemberRows(members ?? []);
+        if (membersResponse.status === "rejected") throw membersResponse.reason;
+        const response = membersResponse.value;
+        const membersResult = await response.json();
+        if (!response.ok) throw new Error(membersResult.error ?? "Members gagal dimuat.");
+        const members = (membersResult.members ?? []).map((member: { id: string; display_name: string | null; miles: number; role: "member" | "admin" }) => ({
+          id: member.id,
+          name: member.display_name ?? "Unnamed member",
+          email: "",
+          miles: member.miles,
+          role: member.role,
+        }));
+        setMemberRows(members);
       } catch {
         setSummary(emptySummary);
         setMemberRows([]);

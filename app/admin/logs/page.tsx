@@ -1,8 +1,12 @@
-import Link from "next/link";
+"use client";
 
-const auditLogs: { id: string; admin: string; action: string; time: string }[] = [];
+import Link from "next/link";
+import { useState } from "react";
+import { AdminActivity, getAdminActivity } from "@/lib/admin-activity";
 
 export default function AdminLogsPage() {
+  const [auditLogs] = useState<AdminActivity[]>(() => getAdminActivity().filter((activity) => activity.kind === "audit"));
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
       <div className="mx-auto max-w-5xl">
@@ -17,9 +21,9 @@ export default function AdminLogsPage() {
         <div className="space-y-4">
           {auditLogs.map((log) => (
             <div key={log.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="font-semibold">{log.admin}</p>
+              <p className="font-semibold">{log.actor}</p>
               <p className="mt-2 text-sm text-zinc-300">{log.action}</p>
-              <p className="mt-2 text-xs text-zinc-500">{log.time}</p>
+              <p className="mt-2 text-xs text-zinc-500">{new Date(log.createdAt).toLocaleString()}</p>
             </div>
           ))}
         </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { recordAdminActivity } from "@/lib/admin-activity";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -26,6 +27,18 @@ export default function AdminLoginPage() {
       return;
     }
 
+    recordAdminActivity({
+      kind: "login",
+      actor: username,
+      action: "Admin signed in",
+      device: navigator.userAgent,
+    });
+    recordAdminActivity({
+      kind: "audit",
+      actor: username,
+      action: "Admin login successful",
+      device: navigator.userAgent,
+    });
     router.push("/admin");
   };
 

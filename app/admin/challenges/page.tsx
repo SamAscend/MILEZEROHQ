@@ -12,7 +12,7 @@ export default function AdminChallengesPage() {
     const loadChallenges = async () => {
       try {
         const remoteChallenges = await listChallengesFromSupabase();
-        setChallenges(remoteChallenges ?? getStoredChallenges());
+        setChallenges(remoteChallenges && remoteChallenges.length > 0 ? remoteChallenges : getStoredChallenges());
       } catch {
         setChallenges(getStoredChallenges());
       }

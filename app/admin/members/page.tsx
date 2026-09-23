@@ -2,19 +2,30 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AdminMember, listMembersFromSupabase } from "@/lib/supabase-data";
+import { AdminMember } from "@/lib/supabase-data";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<AdminMember[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadMembers = async () => {
       try {
-        setMembers((await listMembersFromSupabase()) ?? []);
-      } catch {
+        const response = await fetch("/api/admin/members");
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "Members gagal dimuat.");
+        setMembers((result.members ?? []).map((member: { id: string; display_name: string | null; miles: number; role: "member" | "admin" }) => ({
+          id: member.id,
+          name: member.display_name ?? "Unnamed member",
+          email: "",
+          miles: member.miles,
+          role: member.role,
+        })));
+      } catch (error) {
         setMembers([]);
+        setErrorMessage(error instanceof Error ? error.message : "Members gagal dimuat.");
       } finally {
         setLoading(false);
       }
@@ -85,7 +96,8 @@ export default function AdminMembersPage() {
             </tbody>
           </table>
           {loading && <p className="p-6 text-sm text-zinc-300">Loading members...</p>}
-          {!loading && members.length === 0 && <p className="p-6 text-sm text-zinc-300">No members yet. New member accounts will appear here.</p>}
+          {!loading && errorMessage && <p className="p-6 text-sm text-amber-200">{errorMessage}</p>}
+          {!loading && !errorMessage && members.length === 0 && <p className="p-6 text-sm text-zinc-300">No members yet. New member accounts will appear here.</p>}
           {members.length > 0 && filteredMembers.length === 0 && <p className="p-6 text-sm text-zinc-300">No members match your search.</p>}
         </section>
       </div>
