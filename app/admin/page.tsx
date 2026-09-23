@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
                 <tbody>
                   {memberRows.map((member) => (
                     <tr key={member.id} className="border-t border-white/10">
-                      <td className="px-4 py-3">{member.name}</td>
+                      <td className="px-4 py-3"><Link href={`/profile/${member.id}`} className="transition hover:text-[#e7f27a]">{member.name}</Link></td>
                       <td className="px-4 py-3">{member.miles}</td>
                       <td className="px-4 py-3">Member</td>
                       <td className="px-4 py-3">

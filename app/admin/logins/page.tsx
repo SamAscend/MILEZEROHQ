@@ -27,7 +27,7 @@ export default function AdminLoginsPage() {
             </div>
           ))}
         </div>
-        {loginEvents.length === 0 && <p className="rounded-[24px] border border-dashed border-white/10 bg-white/5 p-6 text-sm text-zinc-400">Belum ada login yang tercatat.</p>}
+        {loginEvents.length === 0 && <div className="rounded-[24px] border border-dashed border-white/10 bg-white/5 p-8 text-center"><p className="font-semibold text-zinc-200">No login activity yet</p><p className="mt-2 text-sm text-zinc-400">Successful admin and member login events will appear here.</p></div>}
       </div>
     </main>
   );

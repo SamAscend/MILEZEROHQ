@@ -77,7 +77,7 @@ export default function DashboardPage() {
                 {initials}
               </div>
               <div>
-                <p className="text-2xl font-black">{displayName}</p>
+                {profile ? <Link href={`/profile/${profile.id}`} className="text-2xl font-black transition hover:text-[#e7f27a]">{displayName}</Link> : <p className="text-2xl font-black">{displayName}</p>}
                 <p className="text-sm text-zinc-400">{username}</p>
               </div>
             </div>

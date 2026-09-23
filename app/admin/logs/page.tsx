@@ -23,7 +23,7 @@ export default function AdminLogsPage() {
             </div>
           ))}
         </div>
-        {auditLogs.length === 0 && <p className="rounded-[24px] border border-dashed border-white/10 bg-white/5 p-6 text-sm text-zinc-400">Belum ada aktivitas admin.</p>}
+        {auditLogs.length === 0 && <div className="rounded-[24px] border border-dashed border-white/10 bg-white/5 p-8 text-center"><p className="font-semibold text-zinc-200">No audit activity yet</p><p className="mt-2 text-sm text-zinc-400">Admin changes and moderation actions will appear here.</p></div>}
       </div>
     </main>
   );

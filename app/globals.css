@@ -58,6 +58,12 @@ input {
   font: inherit;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #a1a1aa;
+  opacity: 1;
+}
+
 .password-input::-ms-reveal,
 .password-input::-ms-clear {
   display: none;

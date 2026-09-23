@@ -37,7 +37,6 @@ export default function ChallengesPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">Challenges</p>
             <h1 className="mt-2 text-3xl font-black">Claim your mission</h1>
           </div>
-          <Link href="/admin/challenges/new" className="rounded-full bg-[#e7f27a] px-4 py-2 text-sm font-bold text-black">+ New challenge</Link>
         </header>
 
         <div className="mb-8 flex flex-wrap gap-3">

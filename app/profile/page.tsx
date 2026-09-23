@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BottomNav } from "@/components/bottom-nav";
-import { CurrentProfile, getCurrentProfile, updateCurrentProfile } from "@/lib/supabase-data";
+import { CurrentProfile, getCurrentProfile, updateCurrentProfile, uploadProfileAvatar } from "@/lib/supabase-data";
 
 const stats = [
   { label: "Total Miles", value: "0" },
@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -51,6 +52,31 @@ export default function ProfilePage() {
       setMessage("Profile berhasil diperbarui.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Profile gagal disimpan.");
+    }
+  };
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !profile) return;
+
+    setMessage("");
+    setErrorMessage("");
+    setUploadingAvatar(true);
+    try {
+      const avatarUrl = await uploadProfileAvatar(file, profile.id);
+      await updateCurrentProfile({
+        display_name: form.display_name,
+        username: form.username,
+        bio: form.bio,
+        avatar_url: avatarUrl,
+      });
+      setProfile((current) => (current ? { ...current, avatar_url: avatarUrl } : current));
+      setMessage("Foto profil berhasil diperbarui.");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Foto profil gagal diupload.");
+    } finally {
+      setUploadingAvatar(false);
+      event.target.value = "";
     }
   };
 
@@ -89,12 +115,16 @@ export default function ProfilePage() {
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <aside className="rounded-[28px] border border-white/10 bg-white/5 p-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-zinc-200 to-zinc-700 text-xl font-black text-black">
-                {initials}
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-zinc-200 to-zinc-700 text-xl font-black text-black">
+                {profile.avatar_url ? <img src={profile.avatar_url} alt="Profile avatar" className="h-full w-full object-cover" /> : initials}
               </div>
               <div>
                 <p className="text-2xl font-black">{form.display_name || "No display name"}</p>
                 <p className="text-sm text-zinc-400">{form.username ? `@${form.username.replace(/^@/, "")}` : "Username not set"}</p>
+                <label className="mt-2 inline-block cursor-pointer text-xs font-semibold text-[#e7f27a] underline">
+                  {uploadingAvatar ? "Compressing and uploading..." : "Change photo"}
+                  <input type="file" accept="image/*" onChange={handleAvatarChange} disabled={uploadingAvatar} className="sr-only" />
+                </label>
               </div>
             </div>
 

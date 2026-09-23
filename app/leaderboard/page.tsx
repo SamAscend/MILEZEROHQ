@@ -1,6 +1,30 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { listPublicProfiles } from "@/lib/supabase-data";
+
 const leaderboard: { name: string; miles: number; tier: string }[] = [];
 
 export default function LeaderboardPage() {
+  const [members, setMembers] = useState<{ id: string; display_name: string | null; miles: number; role: string }[]>([]);
+
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        setMembers((await listPublicProfiles()) ?? []);
+      } catch {
+        setMembers([]);
+      }
+    };
+
+    void loadMembers();
+  }, []);
+
+  const rows = members.length > 0
+    ? members
+    : leaderboard.map((member, index) => ({ id: String(index), display_name: member.name, miles: member.miles, role: "member" }));
+
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
       <div className="mx-auto max-w-5xl">
@@ -33,17 +57,17 @@ export default function LeaderboardPage() {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((member, index) => (
-                <tr key={member.name} className="border-t border-white/10">
+              {rows.map((member, index) => (
+                <tr key={member.id} className="border-t border-white/10">
                   <td className="px-5 py-4 text-zinc-300">#{index + 1}</td>
-                  <td className="px-5 py-4 font-semibold">{member.name}</td>
-                  <td className="px-5 py-4 text-zinc-300">{member.tier}</td>
+                  <td className="px-5 py-4 font-semibold"><Link href={`/profile/${member.id}`} className="transition hover:text-[#e7f27a]">{member.display_name || "Unnamed runner"}</Link></td>
+                  <td className="px-5 py-4 capitalize text-zinc-300">{member.role}</td>
                   <td className="px-5 py-4 text-right font-bold text-[#e7f27a]">{member.miles}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {leaderboard.length === 0 && <p className="p-6 text-sm text-zinc-400">Belum ada member di leaderboard.</p>}
+          {rows.length === 0 && <p className="p-6 text-sm text-zinc-300">Belum ada member di leaderboard.</p>}
         </div>
       </div>
     </main>

@@ -18,10 +18,30 @@ export type CurrentProfile = {
   miles: number;
   role: "member" | "admin";
   email: string;
+  created_at: string;
+  challenge_count: number;
 };
+
+const profileSelect = "id, display_name, username, bio, avatar_url, miles, role, created_at";
 
 export function isSupabaseConfigured() {
   return Boolean(supabase);
+}
+
+async function ensureProfile(user: { id: string; email?: string | null }) {
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      display_name: user.email ?? "Runner",
+    }, { onConflict: "id", ignoreDuplicates: true })
+    .select(profileSelect)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
 }
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
@@ -31,13 +51,17 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   if (authError) throw authError;
   if (!authData.user) return null;
 
-  const { data, error } = await supabase
+  const { data: profileData, error } = await supabase
     .from("profiles")
-    .select("id, display_name, username, bio, avatar_url, miles, role")
+    .select(profileSelect)
     .eq("id", authData.user.id)
     .maybeSingle();
 
   if (error) throw error;
+  let data = profileData;
+  if (!data) {
+    data = await ensureProfile(authData.user);
+  }
   if (!data) return null;
 
   return {
@@ -46,7 +70,86 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
     username: data.username ?? "",
     bio: data.bio ?? "",
     email: authData.user.email ?? "",
+    challenge_count: 0,
   } as CurrentProfile;
+}
+
+export async function getPublicProfile(id: string): Promise<CurrentProfile | null> {
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(profileSelect)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  const { data: count, error: countError } = await supabase.rpc("get_profile_challenge_count", { profile_id: id });
+  if (countError) throw countError;
+
+  return {
+    ...data,
+    display_name: data.display_name ?? "",
+    username: data.username ?? "",
+    bio: data.bio ?? "",
+    email: "",
+    challenge_count: count ?? 0,
+  } as CurrentProfile;
+}
+
+export async function listPublicProfiles() {
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url, miles, role, created_at")
+    .order("miles", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function uploadProfileAvatar(file: File, userId: string) {
+  if (!supabase) throw new Error("Supabase belum dikonfigurasi.");
+  if (!file.type.startsWith("image/")) throw new Error("File avatar harus berupa gambar.");
+  if (file.size > 2 * 1024 * 1024) throw new Error("Ukuran avatar maksimal 2MB.");
+
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const element = new Image();
+    element.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(element);
+    };
+    element.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Avatar tidak dapat dibaca."));
+    };
+    element.src = objectUrl;
+  });
+
+  const size = Math.min(1024, Math.max(image.naturalWidth, image.naturalHeight));
+  const scale = size / Math.max(image.naturalWidth, image.naturalHeight);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const compressed = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Avatar gagal dikompres."))), "image/jpeg", 0.82);
+  });
+  if (compressed.size > 2 * 1024 * 1024) throw new Error("Avatar hasil kompresi masih terlalu besar.");
+
+  const filePath = `${userId}/avatar.jpg`;
+  const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, compressed, {
+    contentType: "image/jpeg",
+    upsert: true,
+  });
+  if (uploadError) throw uploadError;
+
+  return supabase.storage.from("avatars").getPublicUrl(filePath).data.publicUrl;
 }
 
 export async function updateCurrentProfile(updates: Pick<CurrentProfile, "display_name" | "username" | "bio" | "avatar_url">) {

@@ -6,6 +6,8 @@ import { AdminMember, listMembersFromSupabase } from "@/lib/supabase-data";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<AdminMember[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -13,11 +15,18 @@ export default function AdminMembersPage() {
         setMembers((await listMembersFromSupabase()) ?? []);
       } catch {
         setMembers([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     void loadMembers();
   }, []);
+
+  const filteredMembers = members.filter((member) => {
+    const query = search.trim().toLowerCase();
+    return !query || member.name.toLowerCase().includes(query) || member.email.toLowerCase().includes(query);
+  });
 
   return (
     <main className="min-h-screen bg-[#0b0b0d] px-4 py-8 text-white">
@@ -30,7 +39,17 @@ export default function AdminMembersPage() {
           <Link href="/admin" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">Back to overview</Link>
         </header>
 
-        <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
+        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
+          <div className="border-b border-white/10 p-4">
+            <label htmlFor="member-search" className="sr-only">Search members</label>
+            <input
+              id="member-search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name or email"
+              className="w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-300 focus:border-[#e7f27a]/60"
+            />
+          </div>
           <table className="w-full text-left">
             <thead className="bg-black/20 text-sm text-zinc-400">
               <tr>
@@ -42,10 +61,10 @@ export default function AdminMembersPage() {
               </tr>
             </thead>
             <tbody>
-              {members.map((member) => (
+              {filteredMembers.map((member) => (
                 <tr key={member.id} className="border-t border-white/10">
                   <td className="px-5 py-4">
-                    <Link href={`/admin/members/${member.id}`} className="flex items-center gap-3 font-semibold text-white">
+                    <Link href={`/profile/${member.id}`} className="flex items-center gap-3 font-semibold text-white">
                       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e7f27a] text-sm font-black text-black">
                         {member.name.slice(0, 2).toUpperCase()}
                       </span>
@@ -65,8 +84,10 @@ export default function AdminMembersPage() {
               ))}
             </tbody>
           </table>
-          {members.length === 0 && <p className="p-6 text-sm text-zinc-400">Belum ada member yang mendaftar.</p>}
-        </div>
+          {loading && <p className="p-6 text-sm text-zinc-300">Loading members...</p>}
+          {!loading && members.length === 0 && <p className="p-6 text-sm text-zinc-300">No members yet. New member accounts will appear here.</p>}
+          {members.length > 0 && filteredMembers.length === 0 && <p className="p-6 text-sm text-zinc-300">No members match your search.</p>}
+        </section>
       </div>
     </main>
   );

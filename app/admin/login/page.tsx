@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -15,14 +14,15 @@ export default function AdminLoginPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (supabase) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setErrorMessage(error.message);
-        return;
-      }
-    } else {
-      setErrorMessage("Supabase belum dikonfigurasi. Admin login belum tersedia.");
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      const result = await response.json().catch(() => null);
+      setErrorMessage(result?.error ?? "Login admin gagal.");
       return;
     }
 
@@ -37,11 +37,13 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div>
-            <label className="mb-2 block text-sm text-zinc-300">Email</label>
+            <label className="mb-2 block text-sm text-zinc-300">Username</label>
             <input
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 text-white outline-none"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              required
+              className="w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 text-white outline-none focus:border-[#e7f27a]/60"
             />
           </div>
 
@@ -52,12 +54,9 @@ export default function AdminLoginPage() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                minLength={6}
-                maxLength={12}
-                pattern="[A-Za-z0-9]{6,12}"
-                title="Password harus terdiri dari 6 sampai 12 huruf atau angka."
+                autoComplete="current-password"
                 required
-                className="password-input w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 pr-16 text-white outline-none"
+                className="password-input w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 pr-16 text-white outline-none focus:border-[#e7f27a]/60"
               />
               <button
                 type="button"
@@ -78,7 +77,7 @@ export default function AdminLoginPage() {
                 )}
               </button>
             </div>
-            <p className="mt-2 text-xs text-zinc-500">6-12 karakter, hanya huruf dan angka.</p>
+            <p className="mt-2 text-xs text-zinc-500">Password admin bersifat case-sensitive.</p>
           </div>
 
           <button type="submit" className="block w-full rounded-2xl bg-[#e7f27a] px-4 py-3 text-center font-bold text-black">
