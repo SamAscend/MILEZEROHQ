@@ -10,7 +10,7 @@ const items = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-full border border-white/10 bg-[#121416]/90 p-2 shadow-2xl shadow-black/30 backdrop-blur">
+    <nav className="fixed bottom-4 left-1/2 z-50 hidden w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-full border border-white/10 bg-[#121416]/90 p-2 shadow-2xl shadow-black/30 backdrop-blur md:hidden">
       <div className="grid grid-cols-5 gap-2">
         {items.map((item) => (
           <Link
