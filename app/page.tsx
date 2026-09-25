@@ -43,6 +43,7 @@ export default function Home() {
             <Link href="/dashboard">Dashboard</Link>
             <Link href="/challenges">Challenges</Link>
             <Link href="/leaderboard">Leaderboard</Link>
+            <Link href="/profile">Profile</Link>
             {!isLoggedIn && <Link href="/admin/login">Admin</Link>}
           </nav>
           {isLoggedIn ? (
